@@ -94,30 +94,3 @@ def draw_landmarks(img_bgr: np.ndarray, results) -> np.ndarray:
         landmark_drawing_spec=mp_drawing.DrawingSpec(thickness=2, circle_radius=2),
         connection_drawing_spec=mp_drawing.DrawingSpec(thickness=2))
     return annotated
-
-# －－－ 3. 簡易 Demo (上傳 → 量測) －－－
-from google.colab import files
-uploaded = files.upload()            # 會跳出選檔視窗
-
-for fname in uploaded.keys():
-    img = cv2.imread(fname)
-    try:
-        info = measure_from_img(img, ref_method="head")  # 或改成 custom
-    except ValueError as e:
-        print(e)
-        continue
-
-    # 顯示結果
-    print(f"\n📝 {fname} 量測結果（公分）:")
-    for k, v in info["cm"].items():
-        if k != "ref_length_cm":
-            print(f" - {k:>14s}: {v:>5.1f} cm")
-
-    # 視覺化
-    with mp_pose.Pose(static_image_mode=True) as pose:
-        res = pose.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    annotated = draw_landmarks(img, res)
-    import matplotlib.pyplot as plt
-    plt.figure(figsize=(4,8))
-    plt.imshow(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)); plt.axis('off')
-    plt.show()
